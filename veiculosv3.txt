@@ -1,0 +1,177 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char *tiposDeVeiculo;
+    char *marcaDoVeiculo;
+    int idVeiculo;
+    int cargaVeiculo;
+    int statusVeiculo;
+    char *nomeStatusVeiculo;
+} estruturaVeiculo;
+
+estruturaVeiculo* alocarEstruturaVeiculo(int numTiposDeVeiculo) {
+    estruturaVeiculo *veiculo = malloc(numTiposDeVeiculo * sizeof(estruturaVeiculo));
+    if (veiculo == NULL) {
+        printf("Erro ao alocar memória para a estrutura dos veículos.");
+        exit(1);
+    }
+    return veiculo;
+}
+
+void adicionarVeiculos(estruturaVeiculo **veiculo, int *numTiposDeVeiculo) {
+    for (int i = 0; i < *numTiposDeVeiculo; i++) {
+        (*veiculo)[i].tiposDeVeiculo = malloc(30 * sizeof(char));
+        (*veiculo)[i].marcaDoVeiculo = malloc(30 * sizeof(char));
+        (*veiculo)[i].nomeStatusVeiculo = malloc(30 * sizeof(char));
+
+        printf("Informe o tipo do veículo: ");
+        fgets((*veiculo)[i].tiposDeVeiculo, 30, stdin);
+        (*veiculo)[i].tiposDeVeiculo[strcspn((*veiculo)[i].tiposDeVeiculo, "\n")] = 0;
+
+        printf("Informe a marca do veículo: ");
+        fgets((*veiculo)[i].marcaDoVeiculo, 30, stdin);
+        (*veiculo)[i].marcaDoVeiculo[strcspn((*veiculo)[i].marcaDoVeiculo, "\n")] = 0;
+
+        printf("Informe o ID do veículo: ");
+        scanf("%d", &(*veiculo)[i].idVeiculo);
+        getchar();
+
+        printf("Informe a capacidade de carga em kg: ");
+        scanf("%d", &(*veiculo)[i].cargaVeiculo);
+        getchar();
+
+        printf("Informe o status do veículo (Disponível / Ocupado): ");
+        fgets((*veiculo)[i].nomeStatusVeiculo, 30, stdin);
+        (*veiculo)[i].nomeStatusVeiculo[strcspn((*veiculo)[i].nomeStatusVeiculo, "\n")] = 0;
+    }
+}
+
+void salvarVeiculos(estruturaVeiculo *veiculo, int numTiposDeVeiculo) {
+    FILE* arq_veiculos = fopen("arq_veiculos.txt", "w");
+    if (arq_veiculos == NULL) {
+        printf("Erro ao encontrar o arquivo");
+        return;
+    }
+
+    for (int i = 0; i < numTiposDeVeiculo; i++) {
+        fprintf(arq_veiculos, "===== Informações do veículo (%d) =====\n", i + 1);
+        fprintf(arq_veiculos, "Tipo: %s\n", veiculo[i].tiposDeVeiculo);
+        fprintf(arq_veiculos, "Marca: %s\n", veiculo[i].marcaDoVeiculo);
+        fprintf(arq_veiculos, "ID: %d\n", veiculo[i].idVeiculo);
+        fprintf(arq_veiculos, "Capacidade da carga em Kg: %d\n", veiculo[i].cargaVeiculo);
+        fprintf(arq_veiculos, "Status: %s\n\n", veiculo[i].nomeStatusVeiculo);
+    }
+
+    fclose(arq_veiculos);
+    printf("Os dados dos veículos cadastrados foram salvos com sucesso.\n");
+}
+
+int contarVeiculosNoArquivo() {
+    FILE *arq_veiculos = fopen("arq_veiculos.txt", "r");
+    if (arq_veiculos == NULL) {
+        printf("Erro ao abrir o arquivo de veículos.\n");
+        return 0;
+    }
+
+    int count = 0;
+    char buffer[200];
+
+    while (fgets(buffer, sizeof(buffer), arq_veiculos) != NULL) {
+        if (strstr(buffer, "===== Informações do veículo") != NULL) {
+            count++;
+        }
+    }
+
+    fclose(arq_veiculos);
+    return count;
+}
+
+void visualizarVeiculos(estruturaVeiculo *veiculo, int numTiposDeVeiculo) {
+    FILE *arq_veiculos = fopen("arq_veiculos.txt", "r");
+    if (arq_veiculos == NULL) {
+        printf("Erro ao abrir o arquivo de veículos.\n");
+        return;
+    }
+
+    char buffer[200];
+    int i = 0;
+
+    while (fgets(buffer, sizeof(buffer), arq_veiculos) != NULL && i < numTiposDeVeiculo) {
+        if (strstr(buffer, "===== Informações do veículo") != NULL) {
+            printf("%s", buffer);
+
+            if (fgets(buffer, sizeof(buffer), arq_veiculos)) {
+                printf("Tipo: %s", buffer);
+            }
+
+            if (fgets(buffer, sizeof(buffer), arq_veiculos)) {
+                printf("Marca: %s", buffer);
+            }
+
+            if (fgets(buffer, sizeof(buffer), arq_veiculos)) {
+                printf("ID: %s", buffer);
+            }
+
+            if (fgets(buffer, sizeof(buffer), arq_veiculos)) {
+                printf("Capacidade da carga em Kg: %s", buffer);
+            }
+
+            if (fgets(buffer, sizeof(buffer), arq_veiculos)) {
+                printf("Status: %s\n", buffer);
+            }
+            printf("\n");
+
+            i++;
+        }
+    }
+
+    fclose(arq_veiculos);
+}
+
+void liberarMemorias(estruturaVeiculo *veiculo, int numTiposDeVeiculo) {
+    for (int i = 0; i < numTiposDeVeiculo; i++) {
+        free(veiculo[i].tiposDeVeiculo);
+        free(veiculo[i].marcaDoVeiculo);
+        free(veiculo[i].nomeStatusVeiculo);
+    }
+
+    free(veiculo);
+}
+
+int main() {
+    int numTiposDeVeiculo, numTipoDeOperacao;
+
+    printf("===== Menu de Operações =====\n");
+    printf("\nAdicionar -> 1");
+    printf("\nVisualizar -> 2");
+    printf("\nRemover -> 3");
+    printf("\nDeletar -> 4");
+    printf("\n\nQual operação deseja realizar: ");
+    scanf("%d", &numTipoDeOperacao);
+    getchar();
+
+    if (numTipoDeOperacao == 1) {
+        printf("Quantos veículos você deseja adicionar: ");
+        scanf("%d", &numTiposDeVeiculo);
+        getchar();
+        estruturaVeiculo *veiculo = alocarEstruturaVeiculo(numTiposDeVeiculo);
+        adicionarVeiculos(&veiculo, &numTiposDeVeiculo);
+        salvarVeiculos(veiculo, numTiposDeVeiculo);
+        liberarMemorias(veiculo, numTiposDeVeiculo);
+    } else if (numTipoDeOperacao == 2) {
+        numTiposDeVeiculo = contarVeiculosNoArquivo();
+        if (numTiposDeVeiculo > 0) {
+            estruturaVeiculo *veiculo = alocarEstruturaVeiculo(numTiposDeVeiculo);
+            visualizarVeiculos(veiculo, numTiposDeVeiculo);
+            liberarMemorias(veiculo, numTiposDeVeiculo);
+        } else {
+            printf("Não há veículos registrados para visualizar.\n");
+        }
+    } else {
+        printf("Erro ao selecionar a operação\n");
+    }
+
+    return 0;
+}
