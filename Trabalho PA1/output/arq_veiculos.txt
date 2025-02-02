@@ -1,0 +1,10 @@
+===== Informações dos veiculos (1) =====
+Nome: Carro
+ID: 1234
+Capacidade de carga em KG: 120
+Status veiculo: 0
+===== Informações dos veiculos (1) =====
+Nome: Caminhao
+ID: 5678
+Capacidade de carga em KG: 200
+Status veiculo: 1

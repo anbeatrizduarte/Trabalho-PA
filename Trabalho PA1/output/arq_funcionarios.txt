@@ -1,0 +1,6 @@
+===== Informações dos funcionarios (1) =====
+Nome: Jose
+ID: 1234
+===== Informações dos funcionarios (1) =====
+Nome: Marcia
+ID: 5678
